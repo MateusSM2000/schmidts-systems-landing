@@ -284,7 +284,7 @@
             // 2. Efeito de Escala (Shrink): Começa em 1.0 (grande), termina em 0.8 (menor)
             // No PC mantém o tamanho total, no celular diminui um pouco mais para não brigar com texto.
             const scaleStart = window.innerWidth < 768 ? 1.0 : 1.0;
-            const scaleFactor = 1.0 - (0.2 * scrollRatio);
+            const scaleFactor = 1.0 - (0.5 * scrollRatio);
 
             // Aplica os estilos dinamicamente
             if (backgroundLogo) {
