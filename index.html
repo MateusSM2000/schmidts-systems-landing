@@ -11,7 +11,9 @@
         body { font-family: 'Inter', sans-serif; }
         .typing-cursor::after { content: '|'; animation: blink 1s infinite; color: #2563eb; } /* Azul 600 */
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s ease-out; }
+
+        /* Animação de revelação das sessões */
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 1.2s ease-out; }
         .reveal.active { opacity: 1; transform: translateY(0); }
 
         /* Animação dos Cards na Jornada Completa */
@@ -54,7 +56,7 @@
 
             <h1 class="text-4xl md:text-6xl md:leading-tight font-bold mb-6 text-slate-900 px-2 flex flex-col items-center">
                 <span>Sua empresa atendendo</span>
-                <span class="block h-[1.5em] w-full mt-2 mb-2 md:mb-4">
+                <span class="block h-[1.5em] w-full mt-2 mb-2 md:mb-4 typing-cursor">
                     <span id="typing-text" class="text-blue-600"></span>
                 </span>
             </h1>
@@ -275,14 +277,17 @@
     </footer>
 
     <script>
+        // Animação digitação no cabeçalho
         const textElement = document.getElementById('typing-text');
+        const cursorContainer = textElement.parentElement; // Pega o span que controla o cursor
         const phrases = ["24 horas por dia.", "em todo o atendimento.", "sem erros e 100% autônomo."];
         let phraseIndex = 0;
         let charIndex = 0;
         let isDeleting = false;
-
         function type() {
             const currentPhrase = phrases[phraseIndex];
+            // Garante que o cursor apareça enquanto está digitando ou apagando
+            cursorContainer.classList.add('typing-cursor');
             if (isDeleting) {
                 textElement.textContent = currentPhrase.substring(0, charIndex - 1);
                 charIndex--;
@@ -291,18 +296,24 @@
                 charIndex++;
             }
             if (!isDeleting && charIndex === currentPhrase.length) {
+                // Terminou de digitar a frase: pausa longa
                 isDeleting = true;
+                cursorContainer.classList.remove('typing-cursor'); // Oculta o cursor
                 setTimeout(type, 2000);
             } else if (isDeleting && charIndex === 0) {
+                // Terminou de apagar: pausa curta antes da próxima
                 isDeleting = false;
                 phraseIndex = (phraseIndex + 1) % phrases.length;
+                cursorContainer.classList.remove('typing-cursor'); // Oculta o cursor
                 setTimeout(type, 500);
             } else {
+                // Continua digitando ou apagando
                 setTimeout(type, isDeleting ? 30 : 60);
             }
         }
         document.addEventListener('DOMContentLoaded', type);
 
+        // Animação de revelação das sessões
         const reveals = document.querySelectorAll('.reveal');
         const revealOnScroll = () => {
             const windowHeight = window.innerHeight;
@@ -319,7 +330,6 @@
 
         // Observador dos Cards (Animação ao rolar a tela)
         const highlightCards = document.querySelectorAll('.highlight-card');
-
         const cardObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 // Se 70% do card estiver visível na tela, ele ganha a classe 'is-active'
@@ -333,7 +343,6 @@
         }, {
             threshold: 0.7 // O card só anima quando 70% dele estiver dentro da tela
         });
-
         highlightCards.forEach(card => {
             cardObserver.observe(card);
         });
