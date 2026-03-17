@@ -13,12 +13,20 @@
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
         .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s ease-out; }
         .reveal.active { opacity: 1; transform: translateY(0); }
-        /* Logo de fundo animado */
-        #scroll-animated-logo {
-            transform: scale(1.0);
-            opacity: 0.05; /* Opacidade bem baixa para fundo claro */
-            transition: transform 0.1s linear, opacity 0.1s linear;
+
+        /* Animação dos Cards na Jornada Completa */
+        .highlight-card { transition: all 0.5s ease-out; }
+        .highlight-icon { transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); } /* Efeito de "mola" no ícone */
+        /* O que acontece quando o card preenche a tela (classe injetada pelo JS) */
+        .highlight-card.is-active {
+            border-color: #93c5fd; /* Azul 300 */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); /* Sombra maior */
+            transform: translateY(-4px); /* Sobe um pouquinho */
         }
+        .highlight-card.is-active .highlight-icon {
+            transform: scale(1.1); /* Aumenta o ícone */
+        }
+
         /* Malha de Gradiente */
         @keyframes spin-slow {
             from { transform: rotate(0deg); }
@@ -112,22 +120,24 @@
                 <p class="text-slate-600 max-w-2xl mx-auto text-sm md:text-base px-2">Nosso sistema não é um chatbot comum. Ele conduz o seu cliente em uma jornada natural, desde a primeira dúvida até agendamentos, lembretes, mensagens de retorno e marketing pós-atendimento.</p>
             </div>
             <div class="grid md:grid-cols-3 gap-8 mb-10 px-2">
-                <div class="bg-slate-50 p-8 rounded-2xl border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all group">
-                    <div class="text-blue-600 mb-5 transform group-hover:scale-110 transition-transform">
+                <div class="highlight-card bg-slate-50 p-8 rounded-2xl border border-slate-200">
+                    <div class="highlight-icon text-blue-600 mb-5">
                         <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
                     </div>
                     <h3 class="text-xl font-bold text-slate-900 mb-2">1. Pré-Atendimento</h3>
                     <p class="text-slate-600 text-sm leading-relaxed">Tira dúvidas sobre valores, serviços, localização e horários de funcionamento, compreendendo o contexto da conversa de forma humana.</p>
                 </div>
-                <div class="bg-slate-50 p-8 rounded-2xl border border-slate-200 hover:border-cyan-300 hover:shadow-md transition-all group">
-                    <div class="text-cyan-600 mb-5 transform group-hover:scale-110 transition-transform">
+
+                <div class="highlight-card bg-slate-50 p-8 rounded-2xl border border-slate-200">
+                    <div class="highlight-icon text-cyan-600 mb-5">
                         <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                     </div>
                     <h3 class="text-xl font-bold text-slate-900 mb-2">2. Agendamento</h3>
                     <p class="text-slate-600 text-sm leading-relaxed">Respeita rigidamente as regras, folgas e tempo de cada serviço, inserindo o agendamento diretamente na agenda de sua escolha<span class="text-blue-600 font-bold">*</span>.</p>
                 </div>
-                <div class="bg-slate-50 p-8 rounded-2xl border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all group">
-                    <div class="text-blue-600 mb-5 transform group-hover:scale-110 transition-transform">
+
+                <div class="highlight-card bg-slate-50 p-8 rounded-2xl border border-slate-200">
+                    <div class="highlight-icon text-blue-600 mb-5">
                         <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
                     </div>
                     <h3 class="text-xl font-bold text-slate-900 mb-2">3. Pós-Atendimento</h3>
@@ -306,6 +316,27 @@
         };
         window.addEventListener('scroll', revealOnScroll);
         revealOnScroll();
+
+        // Observador dos Cards (Animação ao rolar a tela)
+        const highlightCards = document.querySelectorAll('.highlight-card');
+
+        const cardObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                // Se 70% do card estiver visível na tela, ele ganha a classe 'is-active'
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-active');
+                } else {
+                    // Remove a classe quando o card sai da tela (para repetir a animação se o usuário subir e descer)
+                    entry.target.classList.remove('is-active');
+                }
+            });
+        }, {
+            threshold: 0.7 // O card só anima quando 70% dele estiver dentro da tela
+        });
+
+        highlightCards.forEach(card => {
+            cardObserver.observe(card);
+        });
     </script>
 </body>
 </html>
